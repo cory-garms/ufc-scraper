@@ -7,12 +7,16 @@ For harvesting historical fight and current fighter data from ufc.com and export
 ## Getting Started
 
 
+geteventdetails.py -- scrapes fight result data including striking totals, outcomes, events, referees, etc.
+getfighterdata.py -- scrapes physical data from all current ufc fighters including height, weight, reach, nickname, hometown, etc.
+
+
 ### Dependencies
 
-Python 3 libraries:
-
 BeautifulSoup
+
 requests
+
 Pandas
 
 
