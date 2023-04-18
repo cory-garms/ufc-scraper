@@ -89,49 +89,54 @@ for eventnum, url in enumerate(event_urls):
         ## but the other two may be useful later, 
         #### [1,3] contain detailed strike summarized by round 
 
-        #scrape first table
-        row0 = tables[0].find_all('tr',{'class':'b-fight-details__table-row'})[0]
-        for col in row0.find_all('th', {'class':'b-fight-details__table-col'}):
-            labels.append(col.text.strip())
-        row1 = tables[0].find_all('tr',{'class':'b-fight-details__table-row'})[1]
-        for c in row1.find_all('p',{'class':'b-fight-details__table-text'}):
-            values.append(c.text.strip())
+
+        try:
+            #scrape first table
+            row0 = tables[0].find_all('tr',{'class':'b-fight-details__table-row'})[0]
+            for col in row0.find_all('th', {'class':'b-fight-details__table-col'}):
+                labels.append(col.text.strip())
+            row1 = tables[0].find_all('tr',{'class':'b-fight-details__table-row'})[1]
+            for c in row1.find_all('p',{'class':'b-fight-details__table-text'}):
+                values.append(c.text.strip())
 
 
-        labels2 = []
-        values2 = []
+            labels2 = []
+            values2 = []
 
-        #scrape third table
-        row0 = tables[2].find_all('tr',{'class':'b-fight-details__table-row'})[0]
-        for col in row0.find_all('th', {'class':'b-fight-details__table-col'}):
-            labels2.append(col.text.strip())
-        row1 = tables[2].find_all('tr',{'class':'b-fight-details__table-row'})[1]
-        for c in row1.find_all('p',{'class':'b-fight-details__table-text'}):
-            values2.append(c.text.strip())
+            #scrape third table
+            row0 = tables[2].find_all('tr',{'class':'b-fight-details__table-row'})[0]
+            for col in row0.find_all('th', {'class':'b-fight-details__table-col'}):
+                labels2.append(col.text.strip())
+            row1 = tables[2].find_all('tr',{'class':'b-fight-details__table-row'})[1]
+            for c in row1.find_all('p',{'class':'b-fight-details__table-text'}):
+                values2.append(c.text.strip())
 
-        #combine data excluding redundant columns [0:2]
-        values =  values + values2[6:] 
+            #combine data excluding redundant columns [0:2]
+            labels = labels + labels2[3:]
+            values =  values + values2[6:] 
 
-        #break up values by fighter and add victory column
-        evencols = values[0:][::2]
-        oddcols = values[1:][::2]
-        if evencols[0] == winner_name:
-            evencols = evencols + ['won'] 
-            oddcols = oddcols + ['lost'] 
-        elif oddcols[0] == winner_name:
-            oddcols = oddcols + ['won'] 
-            evencols = evencols + ['lost'] 
+            #break up values by fighter and add victory column
+            evencols = values[0:][::2]
+            oddcols = values[1:][::2]
+            if evencols[0] == winner_name:
+                evencols = evencols + ['won'] 
+                oddcols = oddcols + ['lost'] 
+            elif oddcols[0] == winner_name:
+                oddcols = oddcols + ['won'] 
+                evencols = evencols + ['lost'] 
 
-        #organize data
-        labels = ['EventNo', 'EventName', 'EventLoc', 'FightNo'] + labels + labels2[3:] + ['Outcome','WeightClass','Method','WinRound','WinTime','Referee']
-        evencols = [eventnum, eventname, eventlocation, fightnum ] + evencols + [wtclass, method, winround, wintime, referee]
-        oddcols = [eventnum, eventname, eventlocation, fightnum ] + oddcols + [wtclass, method, winround, wintime, referee]
+            #organize data
+            labels = ['EventNo', 'EventName', 'EventLoc', 'FightNo'] + labels + ['Outcome','WeightClass','Method','WinRound','WinTime','Referee']
+            evencols = [eventnum, eventname, eventlocation, fightnum ] + evencols + [wtclass, method, winround, wintime, referee]
+            oddcols = [eventnum, eventname, eventlocation, fightnum ] + oddcols + [wtclass, method, winround, wintime, referee]
 
-        #add to df and concatenate 
-        newdf = pd.DataFrame(columns=labels)
-        newdf.loc[0] = evencols
-        newdf.loc[1] = oddcols
-        event_df = pd.concat([event_df, newdf])
+            #add to df and concatenate
+            newdf = pd.DataFrame(columns=labels)
+            newdf.loc[0] = evencols
+            newdf.loc[1] = oddcols
+            event_df = pd.concat([event_df, newdf])
+        except:
+            print(f'Skipping event : {eventname}, Fight: {fightnum} {fighter_names} due to processing error')
 
 print(event_df)
 
