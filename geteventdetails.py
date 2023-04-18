@@ -12,15 +12,12 @@ response = requests.get(url)
 soup = BeautifulSoup(response.content, 'html.parser')
 
 # Find the div that contains the event links
-#event_div = soup.find('div', {'class': 'b-statistics__search-results'})
 event_div = soup.find('tbody')
 
 # Extract the URLs for each event link
 event_urls = []
 for event_link in event_div.find_all('a'):
     event_urls.append(event_link['href'])
-
-#print(len(event_urls))
 
 # Create an empty pandas DataFrame to store the scraped data
 event_df = pd.DataFrame()
@@ -42,14 +39,11 @@ for eventnum, url in enumerate(event_urls[0:5]):
     # Extract the table containing the event data
     table = soup.find('table', {'class': 'b-fight-details__table'})
 
-
-    #get list of fight-details urls
+    #get list of fight urls
     fighturls = []
     fighttags = soup.find_all('a',{'class':'b-flag b-flag_style_green'}, href=True)
     for a in fighttags:
         fighturls.append(a['href'])
-
-    #print(fighturls)
 
     #loop through all urls to scrape detailed fight data
     for fightnum, fighturl in enumerate(fighturls):
@@ -61,28 +55,25 @@ for eventnum, url in enumerate(event_urls[0:5]):
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
+        #get fighter names
         fighters = soup.find_all('div', {'class':'b-fight-details__person'})
-
         for fighter in fighters:
             if fighter.find('i', {'class':'b-fight-details__person-status_style_green'}):
                 winner_name = fighter.find('a').text.strip()
             if fighter.find('i', {'class':'b-fight-details__person-status_style_gray'}):
                 loser_name = fighter.find('a').text.strip()
-
         fighter_names.append(winner_name)
         fighter_names.append(loser_name)
 
+        #print out winner and loser namses
         print(fighter_names)
 
         details = soup.find('div', {'class':'b-fight-details__fight'})
 
         details_list = []
-        
 
         for deet in details.find_all('i'):
             details_list.append(deet.text.strip().strip())
-
-        #print(details_list)
 
         wtclass = details_list[0].replace('Bout', '').strip()
         method = details_list[3]
@@ -90,46 +81,40 @@ for eventnum, url in enumerate(event_urls[0:5]):
         wintime = details_list[6].replace('Time:', '').replace(' ','').replace('\n', '')
         referee = details_list[10].replace('Referee:', '').replace('\n', '').strip()
 
-
+        #print out fight details
         print([wtclass, method, winround, wintime, referee])
 
+        tables = soup.find_all('table') 
+        #### There are 4 tables total, two are used now ([0,2]), 
+        ## but the other two may be useful later, 
+        #### [1,3] contain detailed strike summarized by round 
 
-        tables = soup.find_all('table')
-
-        #print(len(tables)) 
-
-        for row in tables[0].find_all('tr',{'class':'b-fight-details__table-row'})[0:1]:
-            for col in row.find_all('th', {'class':'b-fight-details__table-col'}):
-                labels.append(col.text.strip())
-
-
-        row2 = tables[0].find_all('tr',{'class':'b-fight-details__table-row'})[1]
-
-        for c in row2.find_all('p',{'class':'b-fight-details__table-text'}):
+        #scrape first table
+        row0 = tables[0].find_all('tr',{'class':'b-fight-details__table-row'})[0]
+        for col in row0.find_all('th', {'class':'b-fight-details__table-col'}):
+            labels.append(col.text.strip())
+        row1 = tables[0].find_all('tr',{'class':'b-fight-details__table-row'})[1]
+        for c in row1.find_all('p',{'class':'b-fight-details__table-text'}):
             values.append(c.text.strip())
 
-        #print(tables[1]) <-- this table contains strike totals by round
 
         labels2 = []
         values2 = []
 
-        for row in tables[2].find_all('tr',{'class':'b-fight-details__table-row'})[0:1]:
-            for col in row.find_all('th', {'class':'b-fight-details__table-col'}):
-                labels2.append(col.text.strip())
-
-        row2_2 = tables[2].find_all('tr',{'class':'b-fight-details__table-row'})[1]
-
-        for c in row2_2.find_all('p',{'class':'b-fight-details__table-text'}):
+        #scrape third table
+        row0 = tables[2].find_all('tr',{'class':'b-fight-details__table-row'})[0]
+        for col in row0.find_all('th', {'class':'b-fight-details__table-col'}):
+            labels2.append(col.text.strip())
+        row1 = tables[2].find_all('tr',{'class':'b-fight-details__table-row'})[1]
+        for c in row1.find_all('p',{'class':'b-fight-details__table-text'}):
             values2.append(c.text.strip())
 
-
+        #combine data excluding redundant columns [0:2]
         values =  values + values2[6:] 
 
         #break up values by fighter and add victory column
         evencols = values[0:][::2]
-        
         oddcols = values[1:][::2]
-
         if evencols[0] == winner_name:
             evencols = evencols + ['won'] 
             oddcols = oddcols + ['lost'] 
@@ -137,16 +122,15 @@ for eventnum, url in enumerate(event_urls[0:5]):
             oddcols = oddcols + ['won'] 
             evencols = evencols + ['lost'] 
 
+        #organize data
         labels = ['EventNo', 'EventName', 'EventLoc', 'FightNo'] + labels + labels2[3:] + ['Outcome','WeightClass','Method','WinRound','WinTime','Referee']
-
         evencols = [eventnum, eventname, eventlocation, fightnum ] + evencols + [wtclass, method, winround, wintime, referee]
         oddcols = [eventnum, eventname, eventlocation, fightnum ] + oddcols + [wtclass, method, winround, wintime, referee]
 
-
+        #add to df and concatenate 
         newdf = pd.DataFrame(columns=labels)
         newdf.loc[0] = evencols
         newdf.loc[1] = oddcols
-        
         event_df = pd.concat([event_df, newdf])
 
 print(event_df)

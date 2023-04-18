@@ -7,37 +7,35 @@ For harvesting historical fight and current fighter data from ufc.com and export
 ## Getting Started
 
 
-
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
+Python 3 libraries:
+
+BeautifulSoup
+requests
+Pandas
+
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
 
 ### Executing program
 
 * How to run the program
-* Step-by-step bullets
 ```
-code blocks for commands
+python geteventdetails.py
+python getfighterdata.py
 ```
 
 ## Help
 
-Any advise for common problems or issues.
-```
-command to run if program contains helper info
-```
+
 
 ## Authors
 
 Contributors names and contact info
 
-ex. Dominique Pizzie  
+ex. Cory Garms 
 ex. [@DomPizzie](https://twitter.com/dompizzie)
 
 ## Version History
