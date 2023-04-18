@@ -136,4 +136,4 @@ for eventnum, url in enumerate(event_urls[0:5]):
 print(event_df)
 
 # Write the event_data DataFrame to a CSV file
-event_df.to_csv('ufc_detailed_event_data.csv', index=False)
+event_df.to_csv('ufc_fight_outcomes.csv', index=False)
