@@ -23,7 +23,7 @@ for event_link in event_div.find_all('a'):
 event_df = pd.DataFrame()
 
 # Loop through each URL in the event_urls list
-for eventnum, url in enumerate(event_urls[0:5]):
+for eventnum, url in enumerate(event_urls):
     # Send a GET request to the event page
     response = requests.get(url)
 
