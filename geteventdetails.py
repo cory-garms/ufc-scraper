@@ -26,7 +26,7 @@ for event_link in event_div.find_all('a'):
 event_df = pd.DataFrame()
 
 # Loop through each URL in the event_urls list
-for eventnum, url in enumerate(event_urls[0:2]):
+for eventnum, url in enumerate(event_urls[0:5]):
     # Send a GET request to the event page
     response = requests.get(url)
 
@@ -52,7 +52,7 @@ for eventnum, url in enumerate(event_urls[0:2]):
     #print(fighturls)
 
     #loop through all urls to scrape detailed fight data
-    for fightnum, fighturl in enumerate(fighturls[0:1]):
+    for fightnum, fighturl in enumerate(fighturls):
         response = requests.get(fighturl)
 
         fighter_names = []
@@ -84,7 +84,7 @@ for eventnum, url in enumerate(event_urls[0:2]):
 
         #print(details_list)
 
-        wtclass = details_list[0]
+        wtclass = details_list[0].replace('Bout', '').strip()
         method = details_list[3]
         winround = details_list[4].replace('Round:', '').replace(' ','').replace('\n', '')
         wintime = details_list[6].replace('Time:', '').replace(' ','').replace('\n', '')
@@ -152,4 +152,4 @@ for eventnum, url in enumerate(event_urls[0:2]):
 print(event_df)
 
 # Write the event_data DataFrame to a CSV file
-#event_df.to_csv('ufc_detailed_event_data.csv', index=False)
+event_df.to_csv('ufc_detailed_event_data.csv', index=False)

@@ -22,9 +22,6 @@ for num, url in enumerate(urllist):
 
     print(f'getting fighter names and nickames from page {num} of {max(range)}')
 
-
-    #url = urllist[0]
-
     # Send a GET request to the website
     response = requests.get(url)
 
@@ -50,8 +47,6 @@ for num, url in enumerate(urllist):
         else:
             nicknames.append('None')
 
-# print(names)
-# print(nicknames)
 
 d = {"Name" : names, "Nickname" : nicknames}
 
@@ -59,8 +54,6 @@ df = pd.DataFrame(d).drop_duplicates()
 df['URL'] = homeurls
 
 df0 = df.reset_index()
-
-
 
 labels_list = []
 values_list = []
@@ -114,22 +107,3 @@ print(df)
 
 df.to_csv('ufc_fighter_data.csv', index=False)
     
-    # if i < 1:
-    #     df0[["Status","Birthplace","Style","Age","Height","Weight","OctagonDebut","Reach","LegReach"]] = df2
-
-    # else:
-
-    #     print(type(df0.iloc[i,]))
-    #     print(type(df2))
-
-    #     df3 = df2.combine_first(df0).reindex(df0.iloc[i,].index)
-
-
-        # print(labels)
-        # print(values)
-        #print(df)
-    
-
-
-
-
