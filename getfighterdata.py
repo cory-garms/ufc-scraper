@@ -47,31 +47,6 @@ for num, url in enumerate(urllist):
         else:
             nicknames.append('None')
 
-    print(len(homeurls))
-    print(len(names))
-    print(len(nicknames))
-
-'''
-    for index,th in enumerate(fighter_table.find_all('a', {'class':'e-button--black'})):
-        homeurls.append('https://www.ufc.com' + th['href'])
-        print(index, th['href'])
-
-    for index, th in enumerate(fighter_table.find_all('span', {'class': 'c-listing-athlete__name'})):
-        names.append(th.text.strip())
-        print(index, th.text.strip())
-
-    for index, th in enumerate(fighter_table.find_all('span', {'class':'c-listing-athlete__nickname'})):
-        nname = th.find('div', {'class':'field__item'})
-        if nname:
-            nicknames.append(nname.text.strip().replace('"',''))
-            print(index, nname.text.strip().replace('"',''))
-        else:
-            nicknames.append('None')
-            print(index, 'None')
-'''
-
-print(set([x for x in names if names.count(x) > 1]))
-
 d = {"Name" : names, "Nickname" : nicknames}
 
 
