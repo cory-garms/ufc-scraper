@@ -3,16 +3,19 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 # URL of the UFC fighter list
+active_url = 'https://www.ufc.com/athletes/all?gender=All&search=&filters%5B0%5D=status%3A23&page={str(i)}'
+inactive_url = 'https://www.ufc.com/athletes/all?gender=All&page={str(i)}'
+active_total = 95
+inactive_total = 257
 
-range = range(1,95)
+pages = range(1,inactive_total)
 pagelist = []
-for i in range:
+for i in pages:
     pagelist.append(i)
 
 urllist = []
 for i in pagelist:
-    urllist.append(f'https://www.ufc.com/athletes/all?gender=All&search=&filters%5B0%5D=status%3A23&page={str(i)}')
-
+    urllist.append(f'https://www.ufc.com/athletes/all?gender=All&page={str(i)}')
 
 names = []
 nicknames = []
@@ -20,7 +23,7 @@ homeurls = []
 
 for num, url in enumerate(urllist):
 
-    print(f'getting fighter names and nickames from page {num} of {max(range)}')
+    print(f'getting fighter names and nickames from page {num} of {max(pages)}')
 
     # Send a GET request to the website
     response = requests.get(url)
@@ -30,27 +33,50 @@ for num, url in enumerate(urllist):
 
     # Find the table that contains the fighter data
     fighter_table = soup.find('div', {'class': 'item-list'})
-
-    #print(fighter_table)
-
-    for index,th in enumerate(fighter_table.find_all('a', {'class':'e-button--black'})):
-        homeurls.append('https://www.ufc.com' + th['href'])
-
-    for index, th in enumerate(fighter_table.find_all('span', {'class': 'c-listing-athlete__name'})):
-        names.append(th.text.strip())
-
-    for index, th in enumerate(fighter_table.find_all('span', {'class':'c-listing-athlete__nickname'})):
-        nname = th.find('div',{'class':'field__item'})
-        if nname:
-
-            nicknames.append(nname.text.strip().replace('"',''))
+    for index, li in enumerate(fighter_table.find_all('li', {'class': 'l-flex__item'})):
+        ## skip over empty fighter blocks
+        if li.find('a') is None:
+            continue
+        homeurl = li.find('a', {'class': 'e-button--black'})
+        homeurls.append('https://www.ufc.com' + homeurl['href'])
+        name = li.find('span', {'class': 'c-listing-athlete__name'})
+        names.append(name.text.strip())
+        nickname = li.find('span', {'class':'c-listing-athlete__nickname'})
+        if nickname is not None:
+            nicknames.append(nickname.text.strip().replace('"',''))
         else:
             nicknames.append('None')
 
+    print(len(homeurls))
+    print(len(names))
+    print(len(nicknames))
+
+'''
+    for index,th in enumerate(fighter_table.find_all('a', {'class':'e-button--black'})):
+        homeurls.append('https://www.ufc.com' + th['href'])
+        print(index, th['href'])
+
+    for index, th in enumerate(fighter_table.find_all('span', {'class': 'c-listing-athlete__name'})):
+        names.append(th.text.strip())
+        print(index, th.text.strip())
+
+    for index, th in enumerate(fighter_table.find_all('span', {'class':'c-listing-athlete__nickname'})):
+        nname = th.find('div', {'class':'field__item'})
+        if nname:
+            nicknames.append(nname.text.strip().replace('"',''))
+            print(index, nname.text.strip().replace('"',''))
+        else:
+            nicknames.append('None')
+            print(index, 'None')
+'''
+
+print(set([x for x in names if names.count(x) > 1]))
 
 d = {"Name" : names, "Nickname" : nicknames}
 
-df = pd.DataFrame(d).drop_duplicates()
+
+df = pd.DataFrame(d) #.drop_duplicates()
+print(len(df))
 df['URL'] = homeurls
 
 df0 = df.reset_index()
@@ -164,6 +190,18 @@ for fighternum, u in enumerate(df['URL']):
             values.append(target.text.strip())
         else:
             values.append('NA')
+
+    ## FIRST ROUND FINISHES
+    label = "First Round Finishes"
+    labels.append(label)
+    value = "NA"
+    hero_stats = soup.find_all('div', {'class', 'hero-profile__stat'})
+    for index, hero_stat in enumerate(hero_stats):
+        p_label = hero_stat.find('p', {'class', 'hero-profile__stat-text'}).text.strip()
+        if p_label == label:
+            value = hero_stat.find('p', {'class', 'hero-profile__stat-numb'}).text.strip()
+    values.append(value)
+
 
     ## NEW
     df2 = pd.DataFrame(values).T
