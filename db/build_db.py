@@ -4,7 +4,7 @@ from schema import tables, foreign_keys
 
 db_file = "fight.sqlite"
 
-def build():
+def build(curs):
    for table in tables.keys():
         create = "CREATE TABLE IF NOT EXISTS {}".format(table)
         cols = []
@@ -24,10 +24,9 @@ def build():
         strings = [x for x in strings if x] ## filter out empty strings
 
         query = create + " ({})".format(','.join(strings))
-        print(query)
         curs.execute(query) 
         
-def drop_tables():
+def drop_tables(curs):
     for table in tables.keys():
         query = "DROP TABLE IF EXISTS {}".format(table)
         curs.execute(query)
@@ -44,8 +43,8 @@ if __name__ == '__main__':
     conn = sqlite3.connect(db_file)
     curs = conn.cursor()
 
-    if args.build: build()
-    if args.drop: drop_tables()
+    if args.build: build(curs)
+    if args.drop: drop_tables(curs)
 
     curs.close()
     conn.close()

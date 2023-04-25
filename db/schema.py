@@ -8,6 +8,7 @@ tables = {
 
     'Events': {
         'id': 'INTEGER PRIMARY KEY ASC',
+        'promotion': 'INTEGER'
     },
 
     'Fighters': {
@@ -62,11 +63,16 @@ tables = {
         'id': 'INTEGER PRIMARY KEY ASC',
         'fight': 'INTEGER',
         'fighter': 'INTEGER'
+    },
+
+    'Promotions': {
+        'id': 'INTEGER PRIMARY KEY ASC',
+        'promotion': 'TEXT'
     }
 }
 
 foreign_keys = {
-#    'Fighters': [('division', 'Divisions(id)')],
+    'Events': [('promotion', 'Promotions(id)')],
 
     'FighterStatHistory': [('fighter', 'Fighters(id)'),
                            ('event', 'Events(id)')],
