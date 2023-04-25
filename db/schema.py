@@ -18,7 +18,7 @@ tables = {
         'wins': 'INTEGER',
         'losses': 'INTEGER',
         'draws': 'INTEGER',
-#        'division': 'INTEGER', TODO: fix this
+        'division': 'INTEGER',
         'age': 'INTEGER',
         'height': 'REAL',
         'weight': 'REAL',
@@ -55,8 +55,8 @@ tables = {
         'id': 'INTEGER PRIMARY KEY ASC',
         'event': 'INTEGER',
         'fighter1': 'INTEGER',
-        'fighter2': 'INTEGER'
-#        'division': 'INTEGER'
+        'fighter2': 'INTEGER',
+        'division': 'INTEGER'
     },
 
     'FightStats': {
@@ -74,13 +74,15 @@ tables = {
 foreign_keys = {
     'Events': [('promotion', 'Promotions(id)')],
 
+    'Fighters': [('division', 'Divisions(id)')],
+
     'FighterStatHistory': [('fighter', 'Fighters(id)'),
                            ('event', 'Events(id)')],
 
     'Fights': [('event', 'Events(id)'),
                ('fighter1', 'Fighters(id)'),
-               ('fighter2', 'Fighters(id)')
-               #('division', 'Divisions(id)') TODO: fix this too
+               ('fighter2', 'Fighters(id)'),
+               ('division', 'Divisions(id)')
               ],
 
     'FightStats': [('fight', 'Fights(id)'),
