@@ -73,7 +73,7 @@ def harvest_urls(eventurls):
                     uniqueevents.append(t)
         print('list length: ' + str(len(uniqueevents)))
 
-    pd.DataFrame(uniqueevents, columns=["event_url"]).to_csv('fight_odds_urls.csv')
+    pd.DataFrame(uniqueevents, columns=["event_url"]).to_csv('./odds/fight_odds_urls.csv')
     return uniqueevents
 
 ##run this to scrape urls from bestfightodds
@@ -157,11 +157,7 @@ def scrape_odds(url):
 
     return oddsDF, event
             
-df = pd.read_csv('fight_odds_urls.csv', delimiter=',')
 
-sample_url = df['event_url'][1]
-
-agg_odds_df = pd.DataFrame()
 
 #odds, event = scrape_odds('https://www.bestfightodds.com/events/ufc-263-adesanya-vs-vettori-2-2115')
 
