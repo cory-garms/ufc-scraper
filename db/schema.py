@@ -8,6 +8,9 @@ tables = {
 
     'Events': {
         'id': 'INTEGER PRIMARY KEY ASC',
+        'name': 'TEXT',
+        'date': 'INTEGER',
+        'location': 'TEXT',
         'promotion': 'INTEGER'
     },
 
@@ -68,6 +71,11 @@ tables = {
     'Promotions': {
         'id': 'INTEGER PRIMARY KEY ASC',
         'promotion': 'TEXT'
+    },
+
+    'Referees': {
+        'id': 'INTEGER PRIMARY KEY ASC',
+        'name': 'TEXT'
     }
 }
 

@@ -126,9 +126,9 @@ for eventnum, url in enumerate(event_urls):
                 evencols = evencols + ['lost'] 
 
             #organize data
-            labels = ['EventNo', 'EventName', 'EventLoc', 'FightNo'] + labels + ['Outcome','WeightClass','Method','WinRound','WinTime','Referee']
-            evencols = [eventnum, eventname, eventlocation, fightnum ] + evencols + [wtclass, method, winround, wintime, referee]
-            oddcols = [eventnum, eventname, eventlocation, fightnum ] + oddcols + [wtclass, method, winround, wintime, referee]
+            labels = ['EventNo', 'EventName', 'EventDate', 'EventLoc', 'FightNo'] + labels + ['Outcome','WeightClass','Method','WinRound','WinTime','Referee']
+            evencols = [eventnum, eventname, eventdate, eventlocation, fightnum ] + evencols + [wtclass, method, winround, wintime, referee]
+            oddcols = [eventnum, eventname, eventdate, eventlocation, fightnum ] + oddcols + [wtclass, method, winround, wintime, referee]
 
             #add to df and concatenate
             newdf = pd.DataFrame(columns=labels)
@@ -141,4 +141,4 @@ for eventnum, url in enumerate(event_urls):
 print(event_df)
 
 # Write the event_data DataFrame to a CSV file
-event_df.to_csv('ufc_fight_outcomes.csv', index=False)
+event_df.to_csv('csv/ufc_fight_outcomes.csv', index=False)
