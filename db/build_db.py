@@ -11,7 +11,10 @@ def build(curs):
         fkeys = []
 
         for key, value in tables[table].items():
-            col = "{} {}".format(key, value)
+            if 'constraint' in value.keys():
+                col = "{} {} {}".format(key, value['type'], value['constraint'])
+            else:
+                col = "{} {}".format(key, value['type'])
             cols.append(col) 
 
         if table in foreign_keys.keys():

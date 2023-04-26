@@ -6,7 +6,7 @@ def add_quotes(string):
     return ''.join(['"', string, '"'])
 
 def format_by_type(table, string, key):
-    key_type = tables[table][key]
+    key_type = tables[table][key]['type']
     if not string: 
         return 'NULL'
 

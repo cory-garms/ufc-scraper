@@ -1,81 +1,83 @@
 tables = {
     'Divisions': {
-        'id': 'INTEGER PRIMARY KEY ASC',
-        'division': 'TEXT',
-        'weight': 'INTEGER',
-        'gender': 'CHARACTER(1)'
+        'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
+        'division': {'type': 'TEXT'},
+        'weight': {'type': 'INTEGER'},
+        'gender': {'type': 'CHARACTER(1)'}
     },
 
     'Events': {
-        'id': 'INTEGER PRIMARY KEY ASC',
-        'name': 'TEXT',
-        'date': 'INTEGER',
-        'location': 'TEXT',
-        'promotion': 'INTEGER'
+        'id': {'type': 'INTEGER', 'constraint':  'PRIMARY KEY ASC'},
+        'name': {'type': 'TEXT'},
+        'date': {'type': 'INTEGER'},
+        'location': {'type': 'TEXT'},
+        'promotion': {'type': 'INTEGER'}
     },
 
     'Fighters': {
-        'id': 'INTEGER PRIMARY KEY ASC',
-        'name': 'TEXT',
-        'nickname': 'TEXT',
-        'wins': 'INTEGER',
-        'losses': 'INTEGER',
-        'draws': 'INTEGER',
-        'division': 'INTEGER',
-        'age': 'INTEGER',
-        'height': 'REAL',
-        'weight': 'REAL',
-        'reach': 'REAL',
-        'legReach': 'REAL',
-        'sigStrikesLanded': 'INTEGER',
-        'sigStrikesAttempted': 'INTEGER',
-        'sigStrikesHead': 'INTEGER',
-        'sigStrikesBody': 'INTEGER',
-        'sigStrikesLeg': 'INTEGER',
-        'sigStrikesStanding': 'INTEGER',
-        'sigStrikesClinch': 'INTEGER',
-        'sigStrikesGround': 'INTEGER',
-        'sigStrikesPerMin': 'REAL',
-        'sigStrikesAbsorbedPerMin': 'REAL',
-        'takedownsLanded': 'INTEGER',
-        'takedownsAttempted': 'INTEGER',
-        'takedownsPer15Min': 'INTEGER',
-        'submissionAttemptPer15Min': 'INTEGER',
-        'winKO': 'INTEGER',
-        'winDEC': 'INTEGER',
-        'winSUB': 'INTEGER',
-        'avgFightTime': 'INTEGER',
-        'firstRoundFinishes': 'INTEGER'
+        'id': {'type': 'INTEGER', 'constraint':  'PRIMARY KEY ASC'},
+        'name': {'type': 'TEXT'},
+        'nickname': {'type': 'TEXT'},
+        'wins': {'type': 'INTEGER'},
+        'losses': {'type': 'INTEGER'},
+        'draws': {'type': 'INTEGER'},
+        'division': {'type': 'INTEGER'},
+        'age': {'type': 'INTEGER'},
+        'height': {'type': 'REAL'},
+        'weight': {'type': 'REAL'},
+        'reach': {'type': 'REAL'},
+        'legReach': {'type': 'REAL'},
+        'sigStrikesLanded': {'type': 'INTEGER'},
+        'sigStrikesAttempted': {'type': 'INTEGER'},
+        'sigStrikesHead': {'type': 'INTEGER'},
+        'sigStrikesBody': {'type': 'INTEGER'},
+        'sigStrikesLeg': {'type': 'INTEGER'},
+        'sigStrikesStanding': {'type': 'INTEGER'},
+        'sigStrikesClinch': {'type': 'INTEGER'},
+        'sigStrikesGround': {'type': 'INTEGER'},
+        'sigStrikesPerMin': {'type': 'REAL'},
+        'sigStrikesAbsorbedPerMin': {'type': 'REAL'},
+        'takedownsLanded': {'type': 'INTEGER'},
+        'takedownsAttempted': {'type': 'INTEGER'},
+        'takedownsPer15Min': {'type': 'INTEGER'},
+        'submissionAttemptPer15Min': {'type': 'INTEGER'},
+        'winKO': {'type': 'INTEGER'},
+        'winDEC': {'type': 'INTEGER'},
+        'winSUB': {'type': 'INTEGER'},
+        'avgFightTime': {'type': 'INTEGER'},
+        'firstRoundFinishes': {'type': 'INTEGER'}
     },
 
     'FighterStatHistory': {
-        'id': 'INTEGER PRIMARY KEY ASC',
-        'fighter': 'INTEGER',
-        'event': 'INTEGER'
+        'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
+        'fighter': {'type': 'INTEGER'},
+        'event': {'type': 'INTEGER'}
     },
 
     'Fights': {
-        'id': 'INTEGER PRIMARY KEY ASC',
-        'event': 'INTEGER',
-        'fighter1': 'INTEGER',
-        'fighter2': 'INTEGER',
-        'division': 'INTEGER'
+        'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
+        'event': {'type': 'INTEGER'},
+        'fighter1': {'type': 'INTEGER'},
+        'fighter2': {'type': 'INTEGER'},
+        'division': {'type': 'INTEGER'},
+        'rounds': {'type': 'INTEGER'},
+        'title': {'type': 'INTEGER', 'constraint': 'CHECK(title in (0, 1))'}
     },
 
     'FightStats': {
-        'id': 'INTEGER PRIMARY KEY ASC',
-        'fight': 'INTEGER',
-        'fighter': 'INTEGER'
+        'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
+        'fight': {'type': 'INTEGER'},
+        'fighter': {'type': 'INTEGER'}
     },
 
     'Promotions': {
-        'id': 'INTEGER PRIMARY KEY ASC',
-        'promotion': 'TEXT'
+        'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
+        'promotion': {'type': 'TEXT'}
     },
 
     'Referees': {
-        'id': 'INTEGER PRIMARY KEY ASC',
-        'name': 'TEXT'
+        'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
+        'name': {'type': 'TEXT'}
     }
 }
 
@@ -96,3 +98,4 @@ foreign_keys = {
     'FightStats': [('fight', 'Fights(id)'),
                    ('fighter', 'Fighters(id)')]
 }
+
