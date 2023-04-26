@@ -6,7 +6,7 @@ import pandas as pd
 import csv
 
 ####ODDS API KEY
-api_key = os.getenv("api_key")  # in bash, use 'set -a; source .env; set +a' to connect .env file containing api key
+api_key = os.getenv("ODDS_API_KEY")  # in bash, use 'set -a; source .env; set +a' to connect .env file containing api key
 
 #function to get list of all events from UFC site and convert them to urls that display search results for each event
 def get_search_results():
