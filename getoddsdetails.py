@@ -62,8 +62,7 @@ def harvest_urls(nameurls):
     pd.DataFrame(uniquenames, columns=["event_url"]).to_csv('./odds/fighter_odds_urls.csv')
     return uniquenames
 
-#need to run this on entire list
-#harvest_urls(searchurls[0:500])
+#harvest_urls(searchurls)
 
 def scrape_odds_details(fighterurl):
 
@@ -106,10 +105,19 @@ sample_url = df['event_url'][1]
 
 agg_odds_df = pd.DataFrame()
 
-for url in df['event_url'][0:500]:
-    new_odds = scrape_odds_details(url)
-    agg_odds_df = pd.concat([agg_odds_df, new_odds])
+for index, url in enumerate(df['event_url']):
+
+    if index % 250 == 0:
+        agg_odds_df.to_csv('./odds/odds_movement.csv', index=False)
+        print(f'###########      finished scraping up to index {str(index)}    ######')
+
+    try:
+        new_odds = scrape_odds_details(url)
+        agg_odds_df = pd.concat([agg_odds_df, new_odds])
+
+    except: 
+        print(f'could not scrape odds data from {url}')
 
 print(agg_odds_df)
 
-agg_odds_df.to_csv('./odds/odds_movement.csv', index=False)
+agg_odds_df.to_csv('./odds/odds_movement0.csv', index=False)

@@ -156,8 +156,6 @@ def scrape_odds(url):
     oddsDF = oddsDF[oddsDF[['5D_odds', 'Ref_odds']].notnull().sum(1).ge(2)]
 
     return oddsDF, event
-            
-
 
 #odds, event = scrape_odds('https://www.bestfightodds.com/events/ufc-263-adesanya-vs-vettori-2-2115')
 
