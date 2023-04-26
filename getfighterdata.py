@@ -197,5 +197,5 @@ df = pd.merge(df, newdf, on='Name')
 
 print(df)
 
-df.to_csv('ufc_fighter_data.csv', index=False)
+df.to_csv('csv/ufc_fighter_data.csv', index=False)
     

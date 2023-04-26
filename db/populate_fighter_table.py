@@ -2,6 +2,7 @@ import argparse
 import csv
 import sqlite3
 from schema import tables
+from utils import add_quotes, format_by_type
 
 csv_path = '../csv/clean_ufc_fighter_data.csv'
 db_file = 'fight.sqlite'
@@ -14,7 +15,7 @@ translate_cols = {
     'wins': 'wins',
     'losses': 'losses',
     'draws': 'draws',
-    #'division': 'Division',
+    'division': 'Division',
     'age': 'Age',
     'height': 'Height',
     'weight': 'Weight',
@@ -41,14 +42,44 @@ translate_cols = {
     'firstRoundFinishes': 'First Round Finishes'
 }
 
+## Hardcoding this for now
+def get_division_id(division):
+    match division:
+        case 'Flyweight Division':
+            return 1
+        case 'Bantamweight Division':
+            return 2
+        case 'Featherweight Division':
+            return 3
+        case 'Lightweight Division':
+            return 4
+        case 'Welterweight Division':
+            return 5
+        case 'Middleweight Division':
+            return 6
+        case 'Light Heavyweight Division':
+            return 7
+        case 'Heavyweight Division':
+            return 8
+        case 'Women\'s Strawweight Division':
+            return 9
+        case 'Women\'s Flyweight Division':
+            return 10
+        case 'Women\'s Bantamweight Division':
+            return 11
+        case 'Women\'s Featherweight Division':
+            return 12
+        case other:
+            return 'NULL'
+
 def populate_fighters(conn, curs):
     with open(csv_path) as csvfile:
         csvreader = csv.DictReader(csvfile)
         values = []
         for row in csvreader:
-            rowvals = [format_by_type(row[translate_cols[key]], key) for key in translate_cols.keys()]
+            row['Division'] = str(get_division_id(row['Division']))
+            rowvals = [format_by_type('Fighters', row[translate_cols[key]], key) for key in translate_cols.keys()]
             value = '({})'.format(', '.join(rowvals))
-            print(value)
             values.append(value)
     
     cols = ', '.join(map(add_quotes, translate_cols.keys()))
@@ -57,36 +88,6 @@ def populate_fighters(conn, curs):
     curs.execute(query)
     conn.commit()
 
-def add_quotes(string):
-    return ''.join(['"', string, '"'])
-
-def format_by_type(string, key):
-    key_type = tables['Fighters'][key]
-    if not string: 
-        return 'NULL'
-
-    match key_type:
-        case 'TEXT':
-            return add_quotes(string)
-        case 'INTEGER':
-            if is_number(string):
-                return string
-            else:
-                return 'NULL'
-        case 'REAL':
-            if is_number(string):
-                return string
-            else:
-                return 'NULL'
-        case other:
-            return string
-
-def is_number(string):
-    try:
-        float(string)
-        return True
-    except ValueError:
-        return False
 
 def build_parser():
     parser = argparse.ArgumentParser(description='Populate the Fighters table.')
