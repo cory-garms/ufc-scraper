@@ -5,6 +5,13 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import csv
 
+
+
+
+
+
+
+
 ####ODDS API KEY
 api_key = os.getenv("ODDS_API_KEY")  # in bash, use 'set -a; source .env; set +a' to connect .env file containing api key
 
@@ -31,7 +38,12 @@ def get_search_results():
 
     return eventnames
 
-#function to scape data from ' https://www.bestfightodds.com/archive' by searching for strings of known events
+##returns a list of pages with 25 search results per page
+#querylist = get_search_results()
+#print(querylist)
+
+
+#function to scape data from ' https://www.bestfightodds.com/archive' 
 def search_scraper(url):
 
     fighturls = []
@@ -58,8 +70,8 @@ def search_scraper(url):
     except:
         print('Search returned no events.')
 
-##run this to populate list of search result urls
-# events = get_search_results()
+
+
 
 #function that uses the search_scraper function and list of eventurls to harvest the urls of all completed ufc events and write them to a csv file
 def harvest_urls(eventurls):
@@ -76,8 +88,11 @@ def harvest_urls(eventurls):
     pd.DataFrame(uniqueevents, columns=["event_url"]).to_csv('./odds/fight_odds_urls.csv')
     return uniqueevents
 
-##run this to scrape urls from bestfightodds
-#harvest_urls(events)
+##scrape urls from bestfightodds and write out urls to csv
+#querylist = get_search_results()
+#harvest_urls(querylist)
+
+
 
 def scrape_odds(url):
     # Send a GET request to the website
@@ -157,36 +172,40 @@ def scrape_odds(url):
 
     return oddsDF, event
 
-#odds, event = scrape_odds('https://www.bestfightodds.com/events/ufc-263-adesanya-vs-vettori-2-2115')
 
+
+###scrape the odds for a single event
+# # print(df['event_url'][0:5])
+# odds, event = scrape_odds(df['event_url'][0])
+# print(odds)
+# print(event)
+
+
+##scrape entire list of fights
+agg_odds_df = pd.read_csv('./odds/fight_odds_urls.csv')
 i=0
 broken_urls = []
-
-
-for url in df['event_url'][250:]:
-
-    
+for url in agg_odds_df['event_url']:
     try:
+        print(url)
         odds, event = scrape_odds(url)
-
         agg_odds_df = pd.concat([agg_odds_df, odds])
         print('Successfully appended odds data for ' + event)
-
     except: 
         print('Failed to capture table from ' + url)
         broken_urls.append(url)
-
     i=i+1
-    
 print(f'There were a total of {str(len(broken_urls))} broken urls out of {str(i)} total. ({str(len(broken_urls)/i*100)}%)')
-
 #print(broken_urls)
-
 print(f'Successfully appended {str(len(agg_odds_df))} fighter odds instances to dataset.')
+agg_odds_df.to_csv('aggregate_odds_complete.csv')
 
-agg_odds_df.to_csv('aggregate_odds2.csv')
+
+
+
 
 #####~~~  ODDS API SECTION    ~~~####
+
 # # First get a list of in-season sports
 # sports_response = requests.get('https://api.the-odds-api.com/v3/sports', params={
 #     'api_key': api_key
