@@ -45,7 +45,8 @@ tables = {
         'winDEC': {'type': 'INTEGER'},
         'winSUB': {'type': 'INTEGER'},
         'avgFightTime': {'type': 'INTEGER'},
-        'firstRoundFinishes': {'type': 'INTEGER'}
+        'firstRoundFinishes': {'type': 'INTEGER'},
+        'trainsAt': {'type': 'INTEGER'}
     },
 
     'FighterStatHistory': {
@@ -75,6 +76,11 @@ tables = {
         'promotion': {'type': 'TEXT'}
     },
 
+    'Gyms': {
+        'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
+        'name': {'type': 'TEXT'}
+    },
+
     'Referees': {
         'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
         'name': {'type': 'TEXT'}
@@ -84,7 +90,8 @@ tables = {
 foreign_keys = {
     'Events': [('promotion', 'Promotions(id)')],
 
-    'Fighters': [('division', 'Divisions(id)')],
+    'Fighters': [('division', 'Divisions(id)'),
+                 ('trainsAt', 'Gyms(id)')],
 
     'FighterStatHistory': [('fighter', 'Fighters(id)'),
                            ('event', 'Events(id)')],

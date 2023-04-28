@@ -5,6 +5,9 @@ db_file = 'fight.sqlite'
 def add_quotes(string):
     return ''.join(['"', string, '"'])
 
+def escape_quotes(string):
+    return string.replace("'", "''")
+
 def format_by_type(table, string, key):
     key_type = tables[table][key]['type']
     if not string: 

@@ -2,7 +2,7 @@ import argparse
 import csv
 import sqlite3
 from schema import tables
-from utils import add_quotes, format_by_type
+from utils import add_quotes, escape_quotes, format_by_type
 
 csv_path = '../csv/clean_ufc_fighter_data.csv'
 db_file = 'fight.sqlite'
@@ -39,7 +39,8 @@ translate_cols = {
     'winDEC': 'DEC',
     'winSUB': 'SUB',
     'avgFightTime': 'Average fight time',
-    'firstRoundFinishes': 'First Round Finishes'
+    'firstRoundFinishes': 'First Round Finishes',
+    'trainsAt': 'Trains at'
 }
 
 ## Hardcoding this for now
@@ -72,12 +73,20 @@ def get_division_id(division):
         case other:
             return 'NULL'
 
+## this works because gym names are unique... for now
+def get_gym_id(string, curs):
+    query = "SELECT id FROM Gyms WHERE name='{}';".format(escape_quotes(string))
+    curs.execute(query)
+    gym_id = curs.fetchone()
+    return gym_id[0]
+
 def populate_fighters(conn, curs):
     with open(csv_path) as csvfile:
         csvreader = csv.DictReader(csvfile)
         values = []
         for row in csvreader:
             row['Division'] = str(get_division_id(row['Division']))
+            row['Trains at'] = str(get_gym_id(row['Trains at'], curs))
             rowvals = [format_by_type('Fighters', row[translate_cols[key]], key) for key in translate_cols.keys()]
             value = '({})'.format(', '.join(rowvals))
             values.append(value)

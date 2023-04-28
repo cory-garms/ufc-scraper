@@ -3,6 +3,7 @@ from build_db import build, drop_tables
 from populate_events_table import populate_events
 from populate_divisions_table import populate_divisions
 from populate_fighter_table import populate_fighters
+from populate_gyms_table import populate_gyms
 from populate_referees_table import populate_referees
 
 db_file = 'fight.sqlite'
@@ -22,10 +23,19 @@ if __name__ == '__main__':
 
     ## Build the db
     build(curs)
+
+    populate_gyms(conn, curs)
+
+    ## requries gyms
+    ## this will require divisions in the future, but it is hardcoded for now
     populate_fighters(conn, curs)
+
     populate_divisions(conn, curs)
+
     populate_referees(conn, curs)
+
     populate_events(conn, curs)
+
     insert_ufc(conn, curs)
 
     curs.close()
