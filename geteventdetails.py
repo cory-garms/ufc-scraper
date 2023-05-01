@@ -40,8 +40,9 @@ for eventnum, url in enumerate(event_urls):
     table = soup.find('table', {'class': 'b-fight-details__table'})
 
     #get list of fight urls
-    fighturls = []
-    fighttags = soup.find_all('a',{'class':'b-flag b-flag_style_green'}, href=True)
+    fighturls = [] 
+    #b-flag_style_green
+    fighttags = soup.find_all('a',{'class':'b-flag'}, href=True)
     for a in fighttags:
         fighturls.append(a['href'])
 
@@ -57,6 +58,13 @@ for eventnum, url in enumerate(event_urls):
 
         #get fighter names
         fighters = soup.find_all('div', {'class':'b-fight-details__person'})
+
+        for fighter in fighters:
+            fighter_name = fighter.find('a').text.strip()
+            outcome = fighter.find('i', {'class': 'b-fight-details__person-status'}).text.strip()
+            fighter_names.append((fighter_name, outcome))            
+
+        '''
         for fighter in fighters:
             if fighter.find('i', {'class':'b-fight-details__person-status_style_green'}):
                 winner_name = fighter.find('a').text.strip()
@@ -64,6 +72,7 @@ for eventnum, url in enumerate(event_urls):
                 loser_name = fighter.find('a').text.strip()
         fighter_names.append(winner_name)
         fighter_names.append(loser_name)
+        '''
 
         #print out winner and loser namses
         print(fighter_names)
@@ -71,9 +80,16 @@ for eventnum, url in enumerate(event_urls):
         details = soup.find('div', {'class':'b-fight-details__fight'})
 
         details_list = []
+        perf = False
+        fotn = False
+        champ = False
 
         for deet in details.find_all('i'):
             details_list.append(deet.text.strip().strip())
+
+        more_details = details.find_all('p', {'class': 'b-fight-details__text'})
+
+        specific_method = more_details[1].text.replace('  ', '').replace('\n', '').replace('Details:', '').rstrip()
 
         wtclass = details_list[0].replace('Bout', '').strip()
         method = details_list[3]
@@ -81,8 +97,16 @@ for eventnum, url in enumerate(event_urls):
         wintime = details_list[6].replace('Time:', '').replace(' ','').replace('\n', '')
         referee = details_list[10].replace('Referee:', '').replace('\n', '').strip()
 
+        if details.find('img', {'src': 'http://1e49bc5171d173577ecd-1323f4090557a33db01577564f60846c.r80.cf1.rackcdn.com/perf.png'}):
+            perf = True
+        if details.find('img', {'src': 'http://1e49bc5171d173577ecd-1323f4090557a33db01577564f60846c.r80.cf1.rackcdn.com/fight.png'}):
+            fotn = True
+        if details.find('img', {'src': 'http://1e49bc5171d173577ecd-1323f4090557a33db01577564f60846c.r80.cf1.rackcdn.com/belt.png'}):
+            champ = True
+            
+
         #print out fight details
-        print([wtclass, method, winround, wintime, referee])
+        print([wtclass, method, specific_method, winround, wintime, referee, perf, fotn, champ])
 
         tables = soup.find_all('table') 
         #### There are 4 tables total, two are used now ([0,2]), 
@@ -118,17 +142,17 @@ for eventnum, url in enumerate(event_urls):
             #break up values by fighter and add victory column
             evencols = values[0:][::2]
             oddcols = values[1:][::2]
-            if evencols[0] == winner_name:
-                evencols = evencols + ['won'] 
-                oddcols = oddcols + ['lost'] 
-            elif oddcols[0] == winner_name:
-                oddcols = oddcols + ['won'] 
-                evencols = evencols + ['lost'] 
+            if evencols[0] == fighter_names[0][0]:
+                evencols = evencols + [fighter_names[0][1]] 
+                oddcols = oddcols + [fighter_names[1][1]] 
+            elif oddcols[0] == fighter_names[0][0]:
+                oddcols = oddcols + [fighter_names[0][1]] 
+                evencols = evencols + [fighter_names[1][1]] 
 
             #organize data
-            labels = ['EventNo', 'EventName', 'EventDate', 'EventLoc', 'FightNo'] + labels + ['Outcome','WeightClass','Method','WinRound','WinTime','Referee']
-            evencols = [eventnum, eventname, eventdate, eventlocation, fightnum ] + evencols + [wtclass, method, winround, wintime, referee]
-            oddcols = [eventnum, eventname, eventdate, eventlocation, fightnum ] + oddcols + [wtclass, method, winround, wintime, referee]
+            labels = ['EventNo', 'EventName', 'EventDate', 'EventLoc', 'FightNo'] + labels + ['Outcome','WeightClass','Method', 'MethodDetails','WinRound','WinTime','Referee', 'PerfBonus', 'FOTN', 'TitleFight']
+            evencols = [eventnum, eventname, eventdate, eventlocation, fightnum ] + evencols + [wtclass, method, specific_method, winround, wintime, referee, perf, fotn, champ]
+            oddcols = [eventnum, eventname, eventdate, eventlocation, fightnum ] + oddcols + [wtclass, method, specific_method, winround, wintime, referee, perf, fotn, champ]
 
             #add to df and concatenate
             newdf = pd.DataFrame(columns=labels)
