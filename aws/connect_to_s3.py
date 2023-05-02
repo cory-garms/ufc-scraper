@@ -75,6 +75,8 @@ def get_existing_fighter_urls(filename):
     #read in data
     df = pd.read_csv(filename)
 
+    print(len(df['URL']))
+
     #delete bad urls from list
     df.drop(df.index[[2359, 2360]], inplace=True)
     
@@ -82,22 +84,16 @@ def get_existing_fighter_urls(filename):
 
     non_unique = [k for (k,v) in Counter(d).items() if v > 1]
 
-    #print(non_unique)
-
-    #df.drop(df.index[[2359, 2360]], inplace=True)
-
-    #print(df.loc[df['URL'].isin(non_unique)])
+    print(len(df['URL'].unique()))
 
     return df['URL'].unique()
 
 
 existingURLs = get_existing_fighter_urls('./s3_ufcfighterdata.csv')
 
+print(existingURLs)
 
-
-# print(len(existingURLs))
-
-def look_for_new_urls(oldurls):
+def find_new_urls(oldurls):
     active_url = 'https://www.ufc.com/athletes/all?gender=All&search=&filters%5B0%5D=status%3A23&page={str(i)}'
     active_total = 95
 
@@ -110,30 +106,28 @@ def look_for_new_urls(oldurls):
     newurls = []
 
     for num, url in enumerate(urllist):
-        print(f'getting fighter names and nickames from page {num} of {max(pages)}')
+        print(f'getting fighter names and nickames from page {num+1} of {max(pages)}')
 
-    # Send a GET request to the website
-    response = requests.get(url)
+        # Send a GET request to the website
+        response = requests.get(url)
 
-    # Parse the HTML content using BeautifulSoup
-    soup = BeautifulSoup(response.content, 'html.parser')
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(response.content, 'html.parser')
 
-    # Find the table that contains the fighter data
-    fighter_table = soup.find('div', {'class': 'item-list'})
-    for index, li in enumerate(fighter_table.find_all('li', {'class': 'l-flex__item'})):
-        ## skip over empty fighter blocks
-        if li.find('a') is None:
-            continue
-        homeurl = li.find('a', {'class': 'e-button--black'})
-        if homeurl not in oldurls:
-            newurls.append('https://www.ufc.com' + homeurl['href'])
+        # Find the table that contains the fighter data
+        fighter_table = soup.find('div', {'class': 'item-list'})
+        for index, li in enumerate(fighter_table.find_all('li', {'class': 'l-flex__item'})):
+            ## skip over empty fighter blocks
+            if li.find('a') is None:
+                continue
+            homeurl = li.find('a', {'class': 'e-button--black'})
+            url = 'https://www.ufc.com' + homeurl['href']
 
+            if url not in oldurls:
+                newurls.append(url)
 
     return newurls
 
-
-
-
-output = look_for_new_urls(existingURLs)
+output = find_new_urls(existingURLs)
 
 print(output)
