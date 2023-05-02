@@ -40,7 +40,8 @@ translate_cols = {
     'winSUB': 'SUB',
     'avgFightTime': 'Average fight time',
     'firstRoundFinishes': 'First Round Finishes',
-    'trainsAt': 'Trains at'
+    'trainsAt': 'Trains at',
+    'UUID_UFC': 'URL'
 }
 
 ## Hardcoding this for now
@@ -87,6 +88,7 @@ def populate_fighters(conn, curs):
         for row in csvreader:
             row['Division'] = str(get_division_id(row['Division']))
             row['Trains at'] = str(get_gym_id(row['Trains at'], curs))
+            row['URL'] = row['URL'].split('/').pop()
             rowvals = [format_by_type('Fighters', row[translate_cols[key]], key) for key in translate_cols.keys()]
             value = '({})'.format(', '.join(rowvals))
             values.append(value)

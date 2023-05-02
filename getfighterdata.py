@@ -35,8 +35,9 @@ for num, url in enumerate(urllist):
     fighter_table = soup.find('div', {'class': 'item-list'})
     for index, li in enumerate(fighter_table.find_all('li', {'class': 'l-flex__item'})):
         ## skip over empty fighter blocks
-        if li.find('a') is None:
+        if li.find('a') is None: 
             continue
+
         homeurl = li.find('a', {'class': 'e-button--black'})
         homeurls.append('https://www.ufc.com' + homeurl['href'])
         name = li.find('span', {'class': 'c-listing-athlete__name'})
@@ -50,11 +51,11 @@ for num, url in enumerate(urllist):
 d = {"Name" : names, "Nickname" : nicknames}
 
 
-df = pd.DataFrame(d) #.drop_duplicates()
-print(len(df))
+df = pd.DataFrame(d)
 df['URL'] = homeurls
 
 df0 = df.reset_index()
+print(df0)
 
 labels_list = []
 values_list = []
@@ -188,12 +189,12 @@ for fighternum, u in enumerate(df['URL']):
 
     print(df2)
 
-newdf['Name'] = names
+newdf['URL'] = homeurls
 print(names)
 
 print(newdf)
 
-df = pd.merge(df, newdf, on='Name')
+df = pd.merge(df, newdf, on='URL')
 
 print(df)
 

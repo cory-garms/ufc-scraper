@@ -46,7 +46,8 @@ tables = {
         'winSUB': {'type': 'INTEGER'},
         'avgFightTime': {'type': 'INTEGER'},
         'firstRoundFinishes': {'type': 'INTEGER'},
-        'trainsAt': {'type': 'INTEGER'}
+        'trainsAt': {'type': 'INTEGER'},
+        'UUID_UFC': {'type': 'TEXT', 'constraint': 'UNIQUE'}
     },
 
     'FighterStatHistory': {
@@ -62,7 +63,9 @@ tables = {
         'fighter2': {'type': 'INTEGER'},
         'division': {'type': 'INTEGER'},
         'rounds': {'type': 'INTEGER'},
-        'title': {'type': 'INTEGER', 'constraint': 'CHECK(title in (0, 1))'}
+        'title': {'type': 'INTEGER', 'constraint': 'CHECK(title in (0, 1))'},
+        'winner': {'type': 'INTEGER'},
+        'outcome': {'type': 'INTEGER'}
     },
 
     'FightStats': {
@@ -79,6 +82,12 @@ tables = {
     'Gyms': {
         'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
         'name': {'type': 'TEXT'}
+    },
+
+    'Outcomes': {
+        'id': {'type': 'INTEGER', 'constraint': 'PRIMARY KEY ASC'},
+        'outcome': {'type': 'TEXT'},
+        'outcomeType': {'type': 'TEXT', 'constraint':  'CHECK(outcomeType in (\'KO\', \'SUB\', \'DEC\'))'}
     },
 
     'Referees': {
@@ -99,7 +108,9 @@ foreign_keys = {
     'Fights': [('event', 'Events(id)'),
                ('fighter1', 'Fighters(id)'),
                ('fighter2', 'Fighters(id)'),
-               ('division', 'Divisions(id)')
+               ('division', 'Divisions(id)'),
+               ('winner', 'Fighters(id)'),
+               ('outcome', 'Outcomes(id)')
               ],
 
     'FightStats': [('fight', 'Fights(id)'),
