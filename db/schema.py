@@ -47,7 +47,8 @@ tables = {
         'avgFightTime': {'type': 'INTEGER'},
         'firstRoundFinishes': {'type': 'INTEGER'},
         'trainsAt': {'type': 'INTEGER'},
-        'UUID_UFC': {'type': 'TEXT', 'constraint': 'UNIQUE'}
+        'UUID_UFC': {'type': 'TEXT', 'constraint': 'UNIQUE'},
+        'UUID_UFCSTATS': {'type': 'TEXT', 'constraint': 'UNIQUE'}
     },
 
     'FighterStatHistory': {

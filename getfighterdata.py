@@ -6,7 +6,7 @@ import pandas as pd
 active_url = 'https://www.ufc.com/athletes/all?gender=All&search=&filters%5B0%5D=status%3A23&page={str(i)}'
 inactive_url = 'https://www.ufc.com/athletes/all?gender=All&page={str(i)}'
 active_total = 95
-inactive_total = 257
+inactive_total = 258
 
 pages = range(1,inactive_total)
 pagelist = []
