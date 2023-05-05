@@ -1,13 +1,14 @@
 import boto3
-import os
+from botocore.exceptions import ClientError
+from bs4 import BeautifulSoup
+from collections import Counter
+import csv
+from datetime import datetime
 from dotenv import load_dotenv
 import logging
-from botocore.exceptions import ClientError
+import os
 import pandas as pd
-from collections import Counter
-from datetime import datetime
 import requests
-from bs4 import BeautifulSoup
 
 load_dotenv()
 
@@ -88,10 +89,9 @@ def get_existing_fighter_urls(filename):
 
     return df['URL'].unique()
 
-
-existingURLs = get_existing_fighter_urls('./s3_ufcfighterdata.csv')
-
-print(existingURLs)
+# ### example use: get list of existing fighter urls
+# existingURLs = get_existing_fighter_urls('./s3_ufcfighterdata.csv')
+# print(existingURLs)
 
 def find_new_urls(oldurls):
     active_url = 'https://www.ufc.com/athletes/all?gender=All&search=&filters%5B0%5D=status%3A23&page={str(i)}'
@@ -128,6 +128,164 @@ def find_new_urls(oldurls):
 
     return newurls
 
-output = find_new_urls(existingURLs)
+#### example use: search for new fighter urls and write them out to csv
+# output = find_new_urls(existingURLs[5:])
+# print(output)
+# with open('../csv/new_fighter_urls.csv', 'w', newline='') as myfile:
+#      wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+#      wr.writerow(output)
 
-print(output)
+
+def get_new_fighter_data(newurls, outfile):
+
+    urls = open(newurls, "r")
+    urllist = list(csv.reader(urls, delimiter=','))[0]
+    urls.close()
+
+    newdf = pd.DataFrame()
+
+
+    for fighternum, u in enumerate(urllist[0:5]):
+        
+        # Send a GET request to the website
+        response = requests.get(u)
+
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        try:
+            nickname = soup.find('p', {'class':'hero-profile__nickname'}).text.strip().replace('"', '')
+        except:
+            nickname = 'NA'
+        name = soup.find('title').text.strip().replace('| UFC', '')
+
+
+        labels = ['Name', 'Nickname', 'URL']
+        values = [name, nickname, u]
+
+
+        ## Hero profile - only one such div exists
+        value = soup.find('p', {'class': 'hero-profile__division-title'})
+        labels.append('Division')
+        if value is not None:
+            values.append(value.text.strip())
+        else:
+            values.append('NA')
+
+        value = soup.find('p', {'class': 'hero-profile__division-body'})
+        labels.append('Record')
+        if value is not None:
+            values.append(value.text.strip())
+        else:
+            values.append('NA')
+
+        for index, th in enumerate(soup.find_all('div', {'class': 'c-bio__field'})):
+            label = th.find('div', {'class':'c-bio__label'}).text.strip()
+            labels.append(label)
+            
+            value = th.find('div', {'class':'c-bio__text'}).text.strip()
+            values.append(value)
+
+        ## STRIKE / TAKEDOWN ACCURACY
+        for index, dl in enumerate(soup.find_all('dl', {'class': 'c-overlap__stats'})):
+            label = dl.find('dt', {'class': 'c-overlap__stats-text'}).text.strip()
+            labels.append(label)
+
+            value = dl.find('dd', {'class': 'c-overlap__stats-value'}).text.strip()
+            values.append(value)
+
+        ## STRIKES / TAKEDOWN INFO
+        for index, div in enumerate(soup.find_all('div', {'class': 'c-stat-compare__group'})):
+            label = div.find('div', {'class': 'c-stat-compare__label'}).text.strip()
+            suffix = div.find('div', {'class': 'c-stat-compare__label-suffix'})
+            if suffix is not None:
+                label = " ".join([label, suffix.text.strip()])
+            labels.append(label)
+
+            value = div.find('div', {'class': 'c-stat-compare__number'})
+            if value is not None:
+                # get rid of weird % formatting
+                value = value.text.strip().replace(" ", "").replace("\n", "")
+                values.append(value)
+            else:
+                values.append("NA")
+
+        ## STRIKES BY POSITION // WINS BY METHOD
+        for index, div in enumerate(soup.find_all('div', {'class': 'c-stat-3bar c-stat-3bar--no-chart'})):
+            for i, group in enumerate(div.find_all('div', {'class': 'c-stat-3bar__group'})):
+                label = group.find('div', {'class': 'c-stat-3bar__label'}).text.strip()
+                labels.append(label)
+
+                value = group.find('div', {'class': 'c-stat-3bar__value'}).text.strip()
+                values.append(value)
+
+        ## STRIKES BY TARGET
+        targets = []
+        head_value = soup.find('text', {'id': 'e-stat-body_x5F__x5F_head_value'})
+        labels.append("head total")
+        targets.append(head_value)
+
+        head_percent = soup.find('text', {'id': 'e-stat-body_x5F__x5F_head_percent'})
+        labels.append("head percent")
+        targets.append(head_percent)
+
+        body_value = soup.find('text', {'id': 'e-stat-body_x5F__x5F_body_value'})
+        labels.append("body total")
+        targets.append(body_value)
+
+        body_percent = soup.find('text', {'id': 'e-stat-body_x5F__x5F_body_percent'})
+        labels.append("body percent")
+        targets.append(body_percent)
+
+        leg_value = soup.find('text', {'id': 'e-stat-body_x5F__x5F_leg_value'})
+        labels.append("leg total")
+        targets.append(leg_value)
+
+        leg_percent = soup.find('text', {'id': 'e-stat-body_x5F__x5F_leg_percent'})
+        labels.append("leg percent")
+        targets.append(leg_percent)
+
+        for target in targets:
+            if target is not None:
+                values.append(target.text.strip())
+            else:
+                values.append('NA')
+
+        ## FIRST ROUND FINISHES
+        label = "First Round Finishes"
+        labels.append(label)
+        value = "NA"
+        hero_stats = soup.find_all('div', {'class', 'hero-profile__stat'})
+        for index, hero_stat in enumerate(hero_stats):
+            p_label = hero_stat.find('p', {'class', 'hero-profile__stat-text'}).text.strip()
+            if p_label == label:
+                value = hero_stat.find('p', {'class', 'hero-profile__stat-numb'}).text.strip()
+        values.append(value)
+
+
+        ## NEW
+        df2 = pd.DataFrame(values).T
+
+        for index, label in enumerate(labels):
+            df2 = df2.rename(columns={index:label})
+
+        newdf = pd.concat([newdf,df2])
+
+    newdf.to_csv(outfile, index=False)
+
+### example use: take in csv with list of new fighter urls and output csv with their scraped data
+get_new_fighter_data('../csv/new_fighter_urls.csv', '../csv/new_ufc_fighter_data.csv')
+
+def merge_new_fighter_data(olddata, newdata):
+    olddf = pd.read_csv(olddata)[5:].drop_duplicates(subset=['URL'], keep='last')
+    newdf = pd.read_csv(newdata)
+
+    outdf = pd.concat([olddf, newdf]).drop_duplicates(subset=['URL'], keep='last')
+    outdf.to_csv('../csv/merged_ufc_fighter_data.csv')
+
+    diff = len(outdf) - len(olddf)
+
+    print(f'Added a total of {str(diff)} new fighters to the dataset')
+
+
+merge_new_fighter_data('../csv/ufc_fighter_data.csv', '../csv/new_ufc_fighter_data.csv')
