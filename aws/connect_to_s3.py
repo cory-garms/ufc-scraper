@@ -5,6 +5,7 @@ from collections import Counter
 import csv
 from datetime import datetime
 from dotenv import load_dotenv
+import json
 import logging
 import os
 import pandas as pd
@@ -40,7 +41,7 @@ def upload_file_to_S3(filename, bucket, object_name=None):
 
     # If S3 object_name was not specified, use file_name
     if object_name is None:
-        object_name = os.path.basename(file_name)
+        object_name = os.path.basename(filename)
 
     try:
         response = s3.Bucket(bucket).upload_file(filename, object_name)
@@ -49,9 +50,9 @@ def upload_file_to_S3(filename, bucket, object_name=None):
         return False
     return True
 
-# ### example use to upload and/or update a file in s3 bucket
-# response = upload_file_to_S3('../csv/ufc_fighter_data.csv','fighter.database', 'ufcfighterdata')
-# print(response)
+### example use to upload and/or update a file in s3 bucket
+response = upload_file_to_S3('../csv/ufc_fighter_data.csv','fighter.database', 'ufcfighterdata.csv')
+print(response)
 
 def get_file_from_S3(object_name, bucket, outputname):
     """Retrieve a file from S3 bucket
@@ -273,8 +274,8 @@ def get_new_fighter_data(newurls, outfile):
 
     newdf.to_csv(outfile, index=False)
 
-### example use: take in csv with list of new fighter urls and output csv with their scraped data
-get_new_fighter_data('../csv/new_fighter_urls.csv', '../csv/new_ufc_fighter_data.csv')
+# ### example use: take in csv with list of new fighter urls and output csv with their scraped data
+# get_new_fighter_data('../csv/new_fighter_urls.csv', '../csv/new_ufc_fighter_data.csv')
 
 def merge_new_fighter_data(olddata, newdata):
     olddf = pd.read_csv(olddata)[5:].drop_duplicates(subset=['URL'], keep='last')
@@ -288,4 +289,4 @@ def merge_new_fighter_data(olddata, newdata):
     print(f'Added a total of {str(diff)} new fighters to the dataset')
 
 
-merge_new_fighter_data('../csv/ufc_fighter_data.csv', '../csv/new_ufc_fighter_data.csv')
+# merge_new_fighter_data('../csv/ufc_fighter_data.csv', '../csv/new_ufc_fighter_data.csv')
